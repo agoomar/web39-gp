@@ -5,7 +5,7 @@ const express = require('express')
 const server = express()
 
 server.use(express.json())
-server.use(express.static(path.join(__dirname)))
+server.use(express.static(path.join(__dirname, 'client/build')))
 
 console.log(process.env.NODE_ENV)
 
@@ -15,8 +15,15 @@ if (process.env.NODE_ENV === 'development') {
     server.use(cors())
 }
 
-server.use('*', (req, res) => {
-    res.send('<h1>success</h1>')
+
+// our API comes earlier in the pipeline
+server.get('/api/hello', (req, res) => {
+    res.json({ message: 'hello' })
+})
+
+// catch-all that just sends back index.html
+server.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'))
 })
 
 const PORT = process.env.PORT || 4000
